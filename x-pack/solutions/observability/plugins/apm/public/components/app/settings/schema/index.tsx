@@ -50,6 +50,7 @@ export function Schema() {
   const cloudApmPackagePolicy = data.cloud_apm_package_policy;
   const hasCloudApmPackagePolicy = !!cloudApmPackagePolicy;
   const hasRequiredRole = !!data.has_required_role;
+  const hasApmIntegrations = !!data.has_apm_integrations;
   const latestApmPackageVersion = data.latest_apm_package_version;
 
   function updateLocalStorage(newStatus: FETCH_STATUS) {
@@ -78,7 +79,7 @@ export function Schema() {
           setIsSwitchActive(true);
         }}
         isMigrating={isMigrating}
-        isMigrated={hasCloudApmPackagePolicy}
+        isMigrated={hasCloudApmPackagePolicy || hasApmIntegrations}
         isLoading={isLoading}
         isLoadingConfirmation={isLoadingConfirmation}
         cloudApmMigrationEnabled={cloudApmMigrationEnabled}
