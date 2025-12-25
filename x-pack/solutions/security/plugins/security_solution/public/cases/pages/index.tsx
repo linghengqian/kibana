@@ -11,6 +11,8 @@ import type { CaseViewRefreshPropInterface } from '@kbn/cases-plugin/common';
 import { CaseMetricsFeature } from '@kbn/cases-plugin/common';
 import { useExpandableFlyoutApi } from '@kbn/expandable-flyout';
 import type { CaseViewAlertsTableProps } from '@kbn/cases-plugin/public/components/case_view/types';
+import { EuiCallOut, EuiLink, EuiSpacer } from '@elastic/eui';
+import { useLoadAlertingFrameworkHealth } from '@kbn/alerts-ui-shared';
 import { TableId } from '@kbn/securitysolution-data-table';
 import { EasePanelKey } from '../../flyout/ease/constants/panel_keys';
 import { AlertsTable } from '../../detections/components/alerts_table';
@@ -39,13 +41,64 @@ import { DocumentEventTypes } from '../../common/lib/telemetry';
 import { EaseAlertsTable } from '../components/ease/wrapper';
 import { EventsTableForCases } from '../components/case_events/table';
 import { CASES_FEATURES } from '..';
+import {
+  ENCRYPTION_KEY_MISSING_BODY,
+  ENCRYPTION_KEY_MISSING_DOCS_LABEL,
+  ENCRYPTION_KEY_MISSING_TITLE,
+} from './translations';
+
+const ENCRYPTION_KEY_DOCS_URL =
+  'https://www.elastic.co/guide/en/kibana/current/using-kibana-with-security.html#encryptedSavedObjects';
+
+const shouldShowMissingEncryptionKeyCallout = ({
+  isLoading,
+  alertingHealth,
+  isError,
+}: {
+  isLoading: boolean;
+  alertingHealth?: { hasPermanentEncryptionKey?: boolean } | null;
+  isError: boolean;
+}) => {
+  const hasValidEncryptionKey = alertingHealth?.hasPermanentEncryptionKey === true;
+  const healthCheckFailed = !alertingHealth && isError;
+
+  return !isLoading && (!hasValidEncryptionKey || healthCheckFailed);
+};
+
+export const MissingEncryptionKeyCallout = () => (
+  <>
+    <EuiSpacer size="l" />
+    <EuiCallOut
+      color="warning"
+      data-test-subj="cases-missing-encryption-key-callout"
+      iconType="lock"
+      title={ENCRYPTION_KEY_MISSING_TITLE}
+    >
+      <p>{ENCRYPTION_KEY_MISSING_BODY}</p>
+      <EuiLink
+        data-test-subj="cases-missing-encryption-key-callout-docs"
+        href={ENCRYPTION_KEY_DOCS_URL}
+        target="_blank"
+        external
+      >
+        {ENCRYPTION_KEY_MISSING_DOCS_LABEL}
+      </EuiLink>
+    </EuiCallOut>
+  </>
+);
 
 const CaseContainerComponent: React.FC = () => {
   const {
     application: { capabilities },
+    http,
     cases,
     telemetry,
   } = useKibana().services;
+  const {
+    data: alertingHealth,
+    isLoading: isAlertingHealthLoading,
+    isError: isAlertingHealthError,
+  } = useLoadAlertingFrameworkHealth({ http });
   const { getAppUrl, navigateTo } = useNavigation();
   const userCasesPermissions = cases.helpers.canUseCases([APP_ID]);
   const dispatch = useDispatch();
@@ -138,6 +191,21 @@ const CaseContainerComponent: React.FC = () => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const shouldShowMissingKeyCallout = shouldShowMissingEncryptionKeyCallout({
+    alertingHealth,
+    isError: isAlertingHealthError,
+    isLoading: isAlertingHealthLoading,
+  });
+
+  if (shouldShowMissingKeyCallout) {
+    return (
+      <SecuritySolutionPageWrapper noPadding>
+        <MissingEncryptionKeyCallout />
+        <SpyRoute pageName={SecurityPageName.case} />
+      </SecuritySolutionPageWrapper>
+    );
+  }
 
   return (
     <SecuritySolutionPageWrapper noPadding>
