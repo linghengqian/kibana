@@ -8,7 +8,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MissingEncryptionKeyCallout } from './index';
-import { ENCRYPTION_KEY_MISSING_BODY, ENCRYPTION_KEY_MISSING_TITLE } from './translations';
+import {
+  ENCRYPTION_KEY_MISSING_BODY,
+  ENCRYPTION_KEY_MISSING_DOCS_LABEL,
+  ENCRYPTION_KEY_MISSING_TITLE,
+} from './translations';
 
 describe('MissingEncryptionKeyCallout', () => {
   it('renders the warning callout', () => {
@@ -17,5 +21,6 @@ describe('MissingEncryptionKeyCallout', () => {
     expect(screen.getByTestId('cases-missing-encryption-key-callout')).toBeInTheDocument();
     expect(screen.getByText(ENCRYPTION_KEY_MISSING_TITLE)).toBeInTheDocument();
     expect(screen.getByText(ENCRYPTION_KEY_MISSING_BODY)).toBeInTheDocument();
+    expect(screen.getByText(ENCRYPTION_KEY_MISSING_DOCS_LABEL)).toBeInTheDocument();
   });
 });

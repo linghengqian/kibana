@@ -34,6 +34,13 @@ export const ENCRYPTION_KEY_MISSING_BODY = i18n.translate(
   }
 );
 
+export const ENCRYPTION_KEY_MISSING_DOCS_LABEL = i18n.translate(
+  'xpack.securitySolution.caseView.encryptionKeyMissingDocsLabel',
+  {
+    defaultMessage: 'View documentation for configuring encryption keys.',
+  }
+);
+
 export const OTHER_ENDPOINTS = (endpoints: number): string =>
   i18n.translate('xpack.securitySolution.caseView.otherEndpoints', {
     values: { endpoints },
