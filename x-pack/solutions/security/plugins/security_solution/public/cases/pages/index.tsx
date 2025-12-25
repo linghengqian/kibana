@@ -50,6 +50,21 @@ import {
 const ENCRYPTION_KEY_DOCS_URL =
   'https://www.elastic.co/guide/en/kibana/current/using-kibana-with-security.html#encryptedSavedObjects';
 
+const shouldShowMissingEncryptionKeyCallout = ({
+  isLoading,
+  alertingHealth,
+  isError,
+}: {
+  isLoading: boolean;
+  alertingHealth?: { hasPermanentEncryptionKey?: boolean } | null;
+  isError: boolean;
+}) => {
+  const hasValidEncryptionKey = alertingHealth?.hasPermanentEncryptionKey === true;
+  const healthCheckFailed = !alertingHealth && isError;
+
+  return !isLoading && (!hasValidEncryptionKey || healthCheckFailed);
+};
+
 export const MissingEncryptionKeyCallout = () => (
   <>
     <EuiSpacer size="l" />
@@ -177,10 +192,11 @@ const CaseContainerComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const hasValidEncryptionKey = alertingHealth?.hasPermanentEncryptionKey === true;
-  const healthCheckFailed = !alertingHealth && isAlertingHealthError;
-  const shouldShowMissingKeyCallout =
-    !isAlertingHealthLoading && (!hasValidEncryptionKey || healthCheckFailed);
+  const shouldShowMissingKeyCallout = shouldShowMissingEncryptionKeyCallout({
+    alertingHealth,
+    isError: isAlertingHealthError,
+    isLoading: isAlertingHealthLoading,
+  });
 
   if (shouldShowMissingKeyCallout) {
     return (
