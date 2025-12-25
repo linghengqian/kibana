@@ -19,6 +19,21 @@ export const RELEASED_HOST = i18n.translate('xpack.securitySolution.caseView.rel
   defaultMessage: 'submitted release request on host',
 });
 
+export const ENCRYPTION_KEY_MISSING_TITLE = i18n.translate(
+  'xpack.securitySolution.caseView.encryptionKeyMissingTitle',
+  {
+    defaultMessage: 'Set up an encryption key to use Cases',
+  }
+);
+
+export const ENCRYPTION_KEY_MISSING_BODY = i18n.translate(
+  'xpack.securitySolution.caseView.encryptionKeyMissingBody',
+  {
+    defaultMessage:
+      'Cases requires xpack.encryptedSavedObjects.encryptionKey to be configured. Add a persistent key to kibana.yml and restart Kibana to enable Cases.',
+  }
+);
+
 export const OTHER_ENDPOINTS = (endpoints: number): string =>
   i18n.translate('xpack.securitySolution.caseView.otherEndpoints', {
     values: { endpoints },

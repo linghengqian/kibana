@@ -11,6 +11,8 @@ import type { CaseViewRefreshPropInterface } from '@kbn/cases-plugin/common';
 import { CaseMetricsFeature } from '@kbn/cases-plugin/common';
 import { useExpandableFlyoutApi } from '@kbn/expandable-flyout';
 import type { CaseViewAlertsTableProps } from '@kbn/cases-plugin/public/components/case_view/types';
+import { EuiCallOut, EuiSpacer } from '@elastic/eui';
+import { useLoadAlertingFrameworkHealth } from '@kbn/alerts-ui-shared';
 import { TableId } from '@kbn/securitysolution-data-table';
 import { EasePanelKey } from '../../flyout/ease/constants/panel_keys';
 import { AlertsTable } from '../../detections/components/alerts_table';
@@ -39,13 +41,34 @@ import { DocumentEventTypes } from '../../common/lib/telemetry';
 import { EaseAlertsTable } from '../components/ease/wrapper';
 import { EventsTableForCases } from '../components/case_events/table';
 import { CASES_FEATURES } from '..';
+import {
+  ENCRYPTION_KEY_MISSING_BODY,
+  ENCRYPTION_KEY_MISSING_TITLE,
+} from './translations';
+
+export const MissingEncryptionKeyCallout = () => (
+  <>
+    <EuiSpacer size="l" />
+    <EuiCallOut
+      color="warning"
+      data-test-subj="cases-missing-encryption-key-callout"
+      iconType="lock"
+      title={ENCRYPTION_KEY_MISSING_TITLE}
+    >
+      <p>{ENCRYPTION_KEY_MISSING_BODY}</p>
+    </EuiCallOut>
+  </>
+);
 
 const CaseContainerComponent: React.FC = () => {
   const {
     application: { capabilities },
+    http,
     cases,
     telemetry,
   } = useKibana().services;
+  const { data: alertingHealth, isLoading: isAlertingHealthLoading } =
+    useLoadAlertingFrameworkHealth({ http });
   const { getAppUrl, navigateTo } = useNavigation();
   const userCasesPermissions = cases.helpers.canUseCases([APP_ID]);
   const dispatch = useDispatch();
@@ -138,6 +161,15 @@ const CaseContainerComponent: React.FC = () => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!isAlertingHealthLoading && alertingHealth?.hasPermanentEncryptionKey === false) {
+    return (
+      <SecuritySolutionPageWrapper noPadding>
+        <MissingEncryptionKeyCallout />
+        <SpyRoute pageName={SecurityPageName.case} />
+      </SecuritySolutionPageWrapper>
+    );
+  }
 
   return (
     <SecuritySolutionPageWrapper noPadding>
