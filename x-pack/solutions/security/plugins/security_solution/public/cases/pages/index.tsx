@@ -43,9 +43,12 @@ import { EventsTableForCases } from '../components/case_events/table';
 import { CASES_FEATURES } from '..';
 import {
   ENCRYPTION_KEY_MISSING_BODY,
-  ENCRYPTION_KEY_MISSING_TITLE,
   ENCRYPTION_KEY_MISSING_DOCS_LABEL,
+  ENCRYPTION_KEY_MISSING_TITLE,
 } from './translations';
+
+const ENCRYPTION_KEY_DOCS_URL =
+  'https://www.elastic.co/guide/en/kibana/current/using-kibana-with-security.html#encryptedSavedObjects';
 
 export const MissingEncryptionKeyCallout = () => (
   <>
@@ -59,7 +62,7 @@ export const MissingEncryptionKeyCallout = () => (
       <p>{ENCRYPTION_KEY_MISSING_BODY}</p>
       <EuiLink
         data-test-subj="cases-missing-encryption-key-callout-docs"
-        href="https://www.elastic.co/guide/en/kibana/current/using-kibana-with-security.html#encryptedSavedObjects"
+        href={ENCRYPTION_KEY_DOCS_URL}
         target="_blank"
         external
       >
@@ -174,10 +177,10 @@ const CaseContainerComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const hasValidEncryptionKey = alertingHealth?.hasPermanentEncryptionKey === true;
+  const healthCheckFailed = !alertingHealth && isAlertingHealthError;
   const shouldShowMissingKeyCallout =
-    !isAlertingHealthLoading &&
-    (alertingHealth?.hasPermanentEncryptionKey === false ||
-      (!alertingHealth && isAlertingHealthError));
+    !isAlertingHealthLoading && (!hasValidEncryptionKey || healthCheckFailed);
 
   if (shouldShowMissingKeyCallout) {
     return (
