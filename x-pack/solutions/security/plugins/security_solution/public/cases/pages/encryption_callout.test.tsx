@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MissingEncryptionKeyCallout } from './index';
+import { MissingEncryptionKeyCallout } from '.';
 import {
   ENCRYPTION_KEY_MISSING_BODY,
   ENCRYPTION_KEY_MISSING_DOCS_LABEL,
