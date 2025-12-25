@@ -8,7 +8,11 @@
 import type { PackagePolicy } from '@kbn/fleet-plugin/common';
 import type { APMRouteHandlerResources } from '../apm_routes/register_apm_server_routes';
 import { getApmPackagePolicies } from './get_apm_package_policies';
-import { getApmPackagePolicy, getCloudAgentPolicy } from './get_cloud_apm_package_policy';
+import {
+  APM_PACKAGE_NAME,
+  getApmPackagePolicy,
+  getCloudAgentPolicy,
+} from './get_cloud_apm_package_policy';
 import { getLatestApmPackage } from './get_latest_apm_package';
 import { isSuperuser } from './is_superuser';
 
@@ -54,7 +58,6 @@ export async function runMigrationCheck({
         fleetPluginStart,
       })
     : undefined;
-  const apmPackagePolicy = getApmPackagePolicy(cloudAgentPolicy);
   const latestApmPackage = await getLatestApmPackage({
     fleetPluginStart,
     request,
@@ -64,6 +67,11 @@ export async function runMigrationCheck({
     coreStart,
     fleetPluginStart,
   });
+
+  const apmPackagePolicy =
+    getApmPackagePolicy(cloudAgentPolicy) ??
+    packagePolicies.items.find((policy) => policy?.package?.name === APM_PACKAGE_NAME);
+
   return {
     has_cloud_agent_policy: !!cloudAgentPolicy,
     has_cloud_apm_package_policy: !!apmPackagePolicy,

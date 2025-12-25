@@ -158,7 +158,8 @@ export default function ApiTest(ftrProviderContext: FtrProviderContext) {
             pathname: '/internal/apm/fleet/migration_check',
           });
           expect(body).to.have.property('has_apm_integrations', true);
-          expect(body).to.have.property('has_cloud_apm_package_policy', false);
+          expect(body).to.have.property('has_cloud_apm_package_policy', true);
+          expect(body).to.have.property('cloud_apm_package_policy');
         });
       });
     });
